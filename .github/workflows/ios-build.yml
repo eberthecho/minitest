@@ -1,0 +1,71 @@
+name: iOS Build (App + App Clip)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-build.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for Simulator (no signing)
+    runs-on: macos-14
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: List schemes
+        working-directory: ios
+        run: xcodebuild -list -project ProductApp.xcodeproj
+
+      - name: Build ProductApp (Simulator, unsigned)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project ProductApp.xcodeproj \
+            -scheme ProductApp \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | xcbeautify --renderer github-actions || true
+
+      - name: Locate .app bundles
+        working-directory: ios
+        run: |
+          echo "=== App bundles ==="
+          find build -name "*.app" -type d | head -20
+          echo ""
+          echo "=== Size of App ==="
+          du -sh build/Build/Products/Debug-iphonesimulator/*.app 2>/dev/null || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: |
+            ios/build/Build/Products/Debug-iphonesimulator/*.app
+          if-no-files-found: warn
+          retention-days: 7

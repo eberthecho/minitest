@@ -1,0 +1,32 @@
+# macOS / Xcode
+.DS_Store
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.resolved
+
+# XcodeGen output (regenerated each build)
+ios/ProductApp.xcodeproj/
+
+# Node
+node_modules/
+.next/
+.vercel/
+.turbo/
+
+# Env files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,44 @@
+name: ProductApp
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: ru
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  ProductApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/App
+    info:
+      path: Resources/App/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.productapp
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+    dependencies:
+      - target: ProductAppClip
+
+  ProductAppClip:
+    type: application.on-demand-install-capable
+    platform: iOS
+    sources:
+      - path: Sources/AppClip
+    info:
+      path: Resources/AppClip/Info.plist
+    entitlements:
+      path: Resources/AppClip/AppClip.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.productapp.Clip
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
