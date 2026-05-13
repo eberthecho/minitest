@@ -14,12 +14,22 @@ on:
 jobs:
   build:
     name: Build for Simulator (no signing)
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 25
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: |
+          XCODE16=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1)
+          if [ -z "$XCODE16" ]; then
+            echo "No Xcode 16.x installation found in /Applications" >&2
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE16/Contents/Developer"
+          xcodebuild -version
 
       - name: Show toolchain
         run: |
@@ -50,7 +60,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build | xcbeautify --renderer github-actions || true
+            build | xcbeautify --renderer github-actions
 
       - name: Locate .app bundles
         working-directory: ios
